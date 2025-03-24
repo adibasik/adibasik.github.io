@@ -1,6 +1,6 @@
 # adibasik.github.io
 
-![Preview](https://imgur.com/a/x1nhxPC)
+![Preview](https://i.imgur.com/IgrBhj6.png)
 
 Красивый и интерактивный сайт для скачивания приватных клиентов для Minecraft с анимациями, эффектами снега и Discord-интеграцией.
 
