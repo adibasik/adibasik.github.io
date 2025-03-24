@@ -45,4 +45,4 @@ MIT License - свободное использование с указание�
 ---
 
 👨‍💻 **Разработчик**: [adibasik](https://github.com/adibasik)  
-💬 **Discord**: [adibasik#0000](https://discord.com/users/775457932019892237)
+💬 **Discord**: [adibasik](https://discord.com/users/775457932019892237)
