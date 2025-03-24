@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@adibasik</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.7;
+            transition: opacity 1s ease, filter 0.5s ease;
+        }
+        video:hover {
+            opacity: 0.9;
+        }
+        .overlay {
+            position: relative;
+            width: 400px;
+            padding: 30px;
+            text-align: center;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            animation: fadeInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.3s;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            transition: all 0.5s ease;
+            transform: scale(0.9);
+            animation: pulse 2s infinite alternate, scaleIn 0.8s ease-out forwards;
+        }
+        .avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+        }
+        .developer {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+        .description {
+            margin-bottom: 25px;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.8s ease forwards 0.8s;
+        }
+        .buttons {
+            margin-top: 25px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.8s ease forwards 1s;
+        }
+        .button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(45deg, rgba(58,123,213,0.7), rgba(0,210,255,0.7));
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        .button:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.6s ease;
+        }
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .button:hover:after {
+            left: 100%;
+        }
+        .button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Volume Control */
+        .volume-control {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.5s ease;
+        }
+        .volume-control.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .volume-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .volume-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+        .volume-slider-container {
+            width: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+        }
+        .volume-control.active .volume-slider-container {
+            width: 150px;
+        }
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .volume-control.active .volume-slider {
+            opacity: 1;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #00d2ff;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.8);
+        }
+        
+        /* Кнопка "Помощь" в углу */
+        .help-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 14px;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .help-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 10px;
+            user-select: none;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.8;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
+        }
+        
+        /* Окно помощи */
+        .help {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 320px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: left;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 99;
+        }
+        .help.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+        .close:hover {
+            color: #ff4d4d;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+        .help h3 {
+            margin-top: 0;
+            color: #3a7bd5;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        .help p, .help a {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .help a {
+            color: #00d2ff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .help a:hover {
+            color: #3a7bd5;
+            text-decoration: underline;
+        }
+        .help code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #00d2ff;
+        }
+        
+        /* Анимации */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 30px rgba(58, 123, 213, 0.6);
+            }
+        }
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        @keyframes textGlow {
+            0% {
+                text-shadow: 0 0 10px rgba(58, 123, 213, 0.5);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(0, 210, 255, 0.8);
+            }
+        }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Эффект входа */
+        .enter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            transition: all 1s ease;
+        }
+        .enter-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            backdrop-filter: blur(0px);
+        }
+        .enter-text {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* Discord Presence */
+        .discord-presence {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s ease;
+            z-index: 98;
+        }
+        
+        .discord-presence.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .discord-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 2px solid #7289DA;
+        }
+        
+        .discord-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .discord-username {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .discord-status {
+            font-size: 14px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+        }
+        
+        .discord-status-icon {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-online {
+            background: #43b581;
+        }
+        
+        .status-idle {
+            background: #faa61a;
+        }
+        
+        .status-dnd {
+            background: #f04747;
+        }
+        
+        .status-offline {
+            background: #747f8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="enter-overlay" id="enterOverlay">
+        <div class="enter-text" id="enterText">click to enter...</div>
+    </div>
+    
+    <video autoplay muted loop id="bg-video">
+        <source src="your-video.mp4" type="video/mp4">
+    </video>
+    
+    <!-- Discord Presence -->
+    <div class="discord-presence" id="discordPresence" onclick="window.open('https://discord.com/users/775457932019892237', '_blank')">
+        <img src="your-avatar-url.jpg" alt="Discord Avatar" class="discord-avatar">
+        <div class="discord-info">
+            <div class="discord-username">adibasik</div>
+            <div class="discord-status">
+                <span class="discord-status-icon status-online"></span>
+                <span class="discord-status-text">Viewing Clients Page</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Volume Control -->
+    <div class="volume-control">
+        <button class="volume-btn" id="volume-btn">🔊</button>
+        <div class="volume-slider-container">
+            <input type="range" min="0" max="1" step="0.01" value="0.5" class="volume-slider" id="volume-slider">
+        </div>
+    </div>
+    
+    <div class="overlay">
+        <img src="https://i.pinimg.com/736x/e5/b1/10/e5b1109bfcf09f2f8371b15b5c4349d4.jpg" alt="Avatar" class="avatar">
+        <div class="developer">Developer: adibasik</div>
+        <div class="description">
+            Добро пожаловать! Здесь ты можешь скачать мои приватные клиенты для Minecraft.  
+            <br> Teletron Recode – мощный чит на 1.21.4.  
+            <br> Lithium Client – стабильный и быстрый чит для 1.20.4.
+        </div>
+        <div class="buttons">
+            <button class="button" onclick="location.href='client1-download-link'">Teletron Recode 1.21.4</button>
+            <button class="button" onclick="location.href='client2-download-link'">Lithium Client 1.20.4</button>
+        </div>
+    </div>
+
+    <!-- Кнопка "Помощь" -->
+    <button class="help-btn" onclick="toggleHelp()">❓</button>
+
+    <!-- Всплывающее окно помощи -->
+    <div class="help" id="helpSection">
+        <button class="close" onclick="toggleHelp()">✖</button>
+        <h3>Как установить читы?</h3>
+        <p>1. Скачай <a href="https://fabricmc.net/use/" target="_blank">Fabric Loader</a>.</p>
+        <p>2. Установи <a href="https://www.curseforge.com/minecraft/mc-mods/fabric-api" target="_blank">Fabric API</a>.</p>
+        <p>3. Помести скачанный чит в папку <code>.minecraft/mods</code>.</p>
+        <p>4. Запусти Minecraft с Fabric и наслаждайся!</p>
+    </div>
+
+    <script>
+        // Улучшенная физика снежинок
+        class Snowflake {
+            constructor() {
+                this.element = document.createElement("div");
+                this.element.classList.add("snowflake");
+                this.element.innerHTML = ["❄", "❅", "❆"][Math.floor(Math.random() * 3)];
+                document.body.appendChild(this.element);
+                
+                this.reset();
+                
+                // Физические параметры
+                this.x = Math.random() * window.innerWidth;
+                this.y = -10;
+                this.size = Math.random() * 12 + 8;
+                this.speedY = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.wind = Math.random() * 0.5 - 0.25;
+                this.windChange = Math.random() * 0.02 - 0.01;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 2 - 1;
+                this.opacity = Math.random() * 0.7 + 0.3;
+                this.amplitude = Math.random() * 50 + 20;
+                this.frequency = Math.random() * 0.01 + 0.005;
+                
+                this.element.style.fontSize = `${this.size}px`;
+                this.element.style.opacity = this.opacity;
+                this.element.style.transform = `rotate(${this.rotation}deg)`;
+            }
+            
+            reset() {
+                this.x = Math.random() * window.innerWidth;
+                this.y = -20;
+                this.wind = Math.random() * 0.5 - 0.25;
+            }
+            
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX + Math.sin(this.y * this.frequency) * this.amplitude * 0.01;
+                this.wind += this.windChange;
+                this.x += this.wind;
+                this.rotation += this.rotationSpeed;
+                
+                this.element.style.left = `${this.x}px`;
+                this.element.style.top = `${this.y}px`;
+                this.element.style.transform = `rotate(${this.rotation}deg)`;
+                
+                if (this.y > window.innerHeight || 
+                    this.x < -20 || 
+                    this.x > window.innerWidth + 20) {
+                    this.reset();
+                }
+            }
+        }
+        
+        // Создаем снежинки
+        const snowflakes = [];
+        
+        // Обработчик окна помощи
+        function toggleHelp() {
+            var helpSection = document.getElementById("helpSection");
+            helpSection.classList.toggle("show");
+            
+            // Анимация видео при открытии помощи
+            const video = document.getElementById("bg-video");
+            if (helpSection.classList.contains("show")) {
+                video.style.filter = "blur(3px) brightness(0.7)";
+            } else {
+                video.style.filter = "none";
+            }
+        }
+        
+        // Volume Control
+        const volumeBtn = document.getElementById("volume-btn");
+        const volumeSlider = document.getElementById("volume-slider");
+        const volumeControl = document.querySelector(".volume-control");
+        const video = document.getElementById("bg-video");
+        
+        // Инициализация громкости
+        video.volume = 0.5;
+        
+        // Показать/скрыть регулятор громкости
+        volumeBtn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            volumeControl.classList.toggle("active");
+            
+            // Изменить иконку в зависимости от состояния
+            if (video.muted || video.volume === 0) {
+                video.muted = false;
+                video.volume = volumeSlider.value;
+                volumeBtn.textContent = video.volume > 0.5 ? "🔊" : "🔉";
+            }
+        });
+        
+        // Изменение громкости
+        volumeSlider.addEventListener("input", function() {
+            video.volume = this.value;
+            video.muted = false;
+            
+            // Обновить иконку в зависимости от уровня громкости
+            if (this.value == 0) {
+                volumeBtn.textContent = "🔇";
+            } else if (this.value < 0.5) {
+                volumeBtn.textContent = "🔉";
+            } else {
+                volumeBtn.textContent = "🔊";
+            }
+        });
+        
+        // Клик вне регулятора громкости
+        document.addEventListener("click", function(e) {
+            if (!volumeControl.contains(e.target)) {
+                volumeControl.classList.remove("active");
+            }
+        });
+        
+        // Эффект при наведении на кнопки
+        const buttons = document.querySelectorAll(".button");
+        buttons.forEach(button => {
+            button.addEventListener("mouseenter", () => {
+                button.style.background = "linear-gradient(45deg, rgba(58,123,213,0.9), rgba(0,210,255,0.9))";
+            });
+            button.addEventListener("mouseleave", () => {
+                button.style.background = "linear-gradient(45deg, rgba(58,123,213,0.7), rgba(0,210,255,0.7))";
+            });
+        });
+        
+        // Функция для показа Discord Presence
+        function showDiscordPresence() {
+            const presence = document.getElementById('discordPresence');
+            setTimeout(() => {
+                presence.classList.add('visible');
+            }, 300);
+        }
+        
+        // Обработчик входа на сайт
+        const enterOverlay = document.getElementById("enterOverlay");
+        const enterText = document.getElementById("enterText");
+        
+        function enterSite() {
+            // Анимация исчезновения оверлея
+            enterOverlay.classList.add("hidden");
+            
+            // Включаем звук
+            video.muted = false;
+            
+            // Запускаем снежинки после входа
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    snowflakes.push(new Snowflake());
+                }, i * 300);
+            }
+            
+            // Анимация снежинок
+            function animateSnowflakes() {
+                for (const snowflake of snowflakes) {
+                    snowflake.update();
+                }
+                requestAnimationFrame(animateSnowflakes);
+            }
+            animateSnowflakes();
+            
+            // Плавное появление элементов
+            setTimeout(() => {
+                document.querySelector(".overlay").style.animation = "fadeInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards";
+                
+                // Плавное появление регулятора громкости
+                setTimeout(() => {
+                    volumeControl.style.opacity = "1";
+                    volumeControl.style.transform = "translateX(0)";
+                }, 500);
+                
+                // Показываем Discord Presence
+                showDiscordPresence();
+            }, 300);
+            
+            // Удаляем оверлей через 1 секунду (после завершения анимации)
+            setTimeout(() => {
+                enterOverlay.style.display = "none";
+            }, 1000);
+        }
+        
+        // Обработчик клика для входа
+        enterOverlay.addEventListener("click", enterSite);
+        enterText.addEventListener("click", enterSite);
+        
+        // Для мобильных устройств - обработчик касания
+        enterOverlay.addEventListener("touchend", function(e) {
+            e.preventDefault();
+            enterSite();
+        });
+
+
+
+    </script>
+</body>
+</html>
