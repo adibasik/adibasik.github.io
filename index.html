@@ -1,943 +1,430 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ResellPro</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-  :root {
-    --accent: #2563EB;
-    --accent-light: #EFF6FF;
-    --accent-dark: #1D4ED8;
-    --green: #16A34A;
-    --green-light: #F0FDF4;
-    --amber: #D97706;
-    --amber-light: #FFFBEB;
-    --red: #DC2626;
-    --red-light: #FEF2F2;
-    --gray: #6B7280;
-    --border: rgba(0,0,0,0.08);
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-    --radius: 14px;
-    --radius-sm: 8px;
-    --font: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Market Price Calculator | Really World</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none; /* Удобно на мобилках, но текст можно копировать */
+        }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: linear-gradient(145deg, #1a472a 0%, #0e2a1a 100%);
+            font-family: 'Segoe UI', 'Minecraft', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
 
-  body {
-    font-family: var(--font);
-    background: var(--tg-theme-bg-color, #F5F5F7);
-    color: var(--tg-theme-text-color, #111);
-    min-height: 100vh;
-    padding-bottom: 80px;
-    font-size: 15px;
-    line-height: 1.4;
-  }
+        /* Главная карточка */
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(30, 20, 15, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255,255,255,0.1);
+            padding: 24px 22px 36px;
+            border: 1px solid #ffd966;
+            transition: all 0.2s;
+        }
 
-  /* ── HEADER ── */
-  .header {
-    background: var(--tg-theme-bg-color, #fff);
-    padding: 16px 16px 12px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    border-bottom: 1px solid var(--border);
-  }
-  .header-row { display: flex; align-items: center; justify-content: space-between; }
-  .logo { display: flex; align-items: center; gap: 8px; }
-  .logo-icon {
-    width: 34px; height: 34px; background: var(--accent);
-    border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
-  .rate-chip {
-    background: var(--accent-light); color: var(--accent);
-    font-size: 12px; font-weight: 600; padding: 4px 10px;
-    border-radius: 20px; cursor: pointer;
-  }
+        h1 {
+            text-align: center;
+            font-size: 1.9rem;
+            margin: 0 0 8px 0;
+            color: #ffd966;
+            text-shadow: 3px 3px 0 #5a3e1a;
+            letter-spacing: 2px;
+            word-break: keep-all;
+        }
 
-  /* ── TABS ── */
-  .tabs {
-    display: flex; gap: 0; overflow-x: auto; padding: 10px 16px 0;
-    scrollbar-width: none;
-  }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab {
-    flex-shrink: 0; padding: 8px 16px; font-size: 14px; font-weight: 500;
-    color: var(--gray); cursor: pointer; border-bottom: 2px solid transparent;
-    transition: all 0.2s; white-space: nowrap;
-  }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .sub {
+            text-align: center;
+            color: #d4c4a8;
+            font-size: 0.8rem;
+            margin-bottom: 28px;
+            border-bottom: 1px dashed #ffd96680;
+            display: inline-block;
+            width: 100%;
+            padding-bottom: 8px;
+        }
 
-  /* ── PAGES ── */
-  .page { display: none; padding: 16px; }
-  .page.active { display: block; }
+        /* Поля ввода */
+        .input-group {
+            margin-bottom: 22px;
+            display: flex;
+            flex-direction: column;
+        }
 
-  /* ── CARDS ── */
-  .card {
-    background: var(--tg-theme-bg-color, #fff);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-  .card-body { padding: 14px 16px; }
-  .card-header {
-    padding: 12px 16px;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-  }
-  .card-title { font-size: 14px; font-weight: 600; }
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #f3e1b3;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-  /* ── METRICS ── */
-  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-  .metric {
-    background: var(--tg-theme-bg-color, #fff);
-    border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow);
-  }
-  .metric-label { font-size: 11px; color: var(--gray); font-weight: 500; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-  .metric-value { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
-  .metric-sub { font-size: 11px; color: var(--gray); margin-top: 2px; }
-  .metric-up { color: var(--green); }
+        label i {
+            font-style: normal;
+            background: #2c1a0e;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: #ffbc6e;
+        }
 
-  /* ── ORDER CARDS ── */
-  .order-card {
-    background: var(--tg-theme-bg-color, #fff);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    position: relative;
-  }
-  .order-card:active { transform: scale(0.98); box-shadow: var(--shadow-md); }
-  .order-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-  .order-id { font-size: 11px; color: var(--gray); font-family: monospace; }
-  .order-customer { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
-  .order-item { font-size: 13px; color: var(--gray); margin-bottom: 8px; }
-  .order-footer { display: flex; align-items: center; justify-content: space-between; }
-  .order-price { font-size: 16px; font-weight: 700; color: var(--accent); }
-  .order-profit { font-size: 12px; color: var(--green); font-weight: 600; }
+        input {
+            background: #2d2418;
+            border: 2px solid #b97f44;
+            padding: 14px 18px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-family: monospace;
+            font-weight: bold;
+            color: #ffefcf;
+            outline: none;
+            transition: 0.2s;
+        }
 
-  /* ── STATUS BADGE ── */
-  .badge {
-    font-size: 11px; font-weight: 600; padding: 3px 9px;
-    border-radius: 20px; white-space: nowrap;
-  }
-  .badge-yellow { background: #FEF3C7; color: #92400E; }
-  .badge-blue { background: #DBEAFE; color: #1E40AF; }
-  .badge-indigo { background: #E0E7FF; color: #3730A3; }
-  .badge-green { background: #DCFCE7; color: #166534; }
-  .badge-emerald { background: #D1FAE5; color: #065F46; }
-  .badge-red { background: #FEE2E2; color: #991B1B; }
+        input:focus {
+            border-color: #ffb347;
+            box-shadow: 0 0 0 3px rgba(255, 180, 71, 0.4);
+            background: #3b2c1c;
+        }
 
-  /* ── SEARCH ── */
-  .search-wrap { margin-bottom: 12px; position: relative; }
-  .search-input {
-    width: 100%; padding: 10px 14px 10px 38px;
-    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-    font-size: 15px; background: var(--tg-theme-bg-color, #fff);
-    color: var(--tg-theme-text-color, #111); outline: none;
-    transition: border-color 0.2s;
-  }
-  .search-input:focus { border-color: var(--accent); }
-  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--gray); }
+        .slider-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            color: #cfb27c;
+            padding: 0 10px;
+        }
 
-  /* ── FILTER CHIPS ── */
-  .filter-chips { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 12px; scrollbar-width: none; padding-bottom: 2px; }
-  .filter-chips::-webkit-scrollbar { display: none; }
-  .chip {
-    flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
-    font-size: 12px; font-weight: 500; cursor: pointer;
-    background: var(--tg-theme-bg-color, #fff);
-    border: 1.5px solid var(--border); color: var(--gray);
-    transition: all 0.15s;
-  }
-  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        /* Кнопка */
+        .calc-btn {
+            background: #f3a712;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: inherit;
+            color: #2c1a0e;
+            border-radius: 60px;
+            margin: 20px 0 20px;
+            cursor: pointer;
+            transition: 0.1s linear;
+            box-shadow: 0 6px 0 #7a4800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
 
-  /* ── FAB ── */
-  .fab {
-    position: fixed; bottom: 90px; right: 20px;
-    width: 54px; height: 54px; border-radius: 50%;
-    background: var(--accent); color: #fff; font-size: 26px;
-    border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(37,99,235,0.4);
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.15s, box-shadow 0.15s;
-    z-index: 40;
-  }
-  .fab:active { transform: scale(0.92); box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+        .calc-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #7a4800;
+        }
 
-  /* ── BOTTOM NAV ── */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--tg-theme-bg-color, #fff);
-    border-top: 1px solid var(--border);
-    display: flex; z-index: 50;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .nav-btn {
-    flex: 1; padding: 10px 0 8px; display: flex; flex-direction: column;
-    align-items: center; gap: 3px; cursor: pointer;
-    color: var(--gray); font-size: 10px; font-weight: 500;
-    transition: color 0.15s;
-  }
-  .nav-btn.active { color: var(--accent); }
-  .nav-btn-icon { font-size: 22px; line-height: 1; }
+        /* Результаты */
+        .results {
+            background: #1f1912cc;
+            border-radius: 36px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 6px solid #f3a712;
+        }
 
-  /* ── SHEET (modal) ── */
-  .sheet-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-    z-index: 100; display: flex; align-items: flex-end;
-    opacity: 0; pointer-events: none; transition: opacity 0.25s;
-  }
-  .sheet-overlay.open { opacity: 1; pointer-events: all; }
-  .sheet {
-    background: var(--tg-theme-bg-color, #fff);
-    border-radius: 20px 20px 0 0;
-    width: 100%; max-height: 95vh;
-    overflow-y: auto; padding: 0 0 env(safe-area-inset-bottom);
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
-  }
-  .sheet-overlay.open .sheet { transform: translateY(0); }
-  .sheet-handle { width: 36px; height: 4px; background: rgba(0,0,0,0.15); border-radius: 2px; margin: 10px auto; }
-  .sheet-title { font-size: 17px; font-weight: 700; padding: 4px 16px 16px; }
-  .sheet-body { padding: 0 16px 16px; }
+        .best-card {
+            background: #2a4b2c;
+            padding: 14px 18px;
+            border-radius: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #ffd966;
+        }
 
-  /* ── FORM ── */
-  .form-group { margin-bottom: 14px; }
-  .form-label { font-size: 13px; font-weight: 600; color: var(--gray); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.04em; }
-  .form-input {
-    width: 100%; padding: 12px 14px;
-    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-    font-size: 15px; background: var(--tg-theme-bg-color, #fff);
-    color: var(--tg-theme-text-color, #111); outline: none;
-    transition: border-color 0.2s; -webkit-appearance: none;
-  }
-  .form-input:focus { border-color: var(--accent); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .form-hint { font-size: 12px; color: var(--gray); margin-top: 4px; }
-  .form-calc {
-    background: var(--accent-light); border-radius: var(--radius-sm);
-    padding: 10px 14px; margin-bottom: 14px;
-    font-size: 13px; color: var(--accent); font-weight: 500;
-  }
-  .btn {
-    width: 100%; padding: 14px; border-radius: var(--radius-sm);
-    font-size: 16px; font-weight: 600; border: none; cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-  }
-  .btn:active { transform: scale(0.98); opacity: 0.85; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-danger { background: var(--red); color: #fff; margin-top: 8px; }
-  .btn-secondary { background: var(--border); color: var(--gray); }
+        .best-price {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #ffd966;
+            font-family: monospace;
+            word-break: break-all;
+        }
 
-  /* ── ORDER DETAIL ── */
-  .detail-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 11px 0; border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-  .detail-row:last-child { border-bottom: none; }
-  .detail-label { color: var(--gray); }
-  .detail-value { font-weight: 500; text-align: right; max-width: 60%; }
+        .command {
+            background: #0e0b07;
+            padding: 12px;
+            border-radius: 48px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            color: #b9f5a0;
+            letter-spacing: 1px;
+        }
 
-  /* ── STATUS BUTTONS ── */
-  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-  .status-btn {
-    padding: 10px; border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border); background: none;
-    font-size: 13px; font-weight: 500; cursor: pointer;
-    transition: all 0.15s; text-align: center; color: inherit;
-  }
-  .status-btn.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+        .option-list {
+            max-height: 260px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding-right: 4px;
+        }
 
-  /* ── ANALYTICS ── */
-  .stat-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-  }
-  .stat-row:last-child { border-bottom: none; }
-  .stat-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .stat-bar { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s ease; }
-  .stat-name { font-size: 13px; font-weight: 500; min-width: 80px; }
-  .stat-val { font-size: 13px; font-weight: 600; color: var(--accent); min-width: 60px; text-align: right; }
+        .option-item {
+            background: #2b241cb3;
+            margin: 8px 0;
+            padding: 10px 12px;
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 6px;
+            border: 1px solid #ab8e54;
+        }
 
-  /* ── KANBAN ── */
-  .kanban-cols { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; }
-  .kanban-cols::-webkit-scrollbar { display: none; }
-  .kan-col { flex-shrink: 0; width: 220px; }
-  .kan-head {
-    font-size: 12px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--gray); margin-bottom: 8px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .kan-count { background: var(--border); border-radius: 10px; padding: 1px 7px; font-size: 11px; color: var(--gray); font-weight: 600; }
-  .kan-card {
-    background: var(--tg-theme-bg-color, #fff);
-    border-radius: var(--radius-sm); padding: 11px 12px;
-    margin-bottom: 8px; box-shadow: var(--shadow);
-    cursor: pointer; transition: transform 0.15s;
-  }
-  .kan-card:active { transform: scale(0.97); }
-  .kan-card-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
-  .kan-card-item { font-size: 12px; color: var(--gray); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .kan-card-price { font-size: 14px; font-weight: 700; color: var(--accent); }
+        .badge {
+            background: #ffd96630;
+            padding: 4px 12px;
+            border-radius: 60px;
+            font-family: monospace;
+        }
 
-  /* ── EMPTY ── */
-  .empty { text-align: center; padding: 48px 16px; color: var(--gray); }
-  .empty-icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-text { font-size: 15px; }
+        hr {
+            border-color: #ffd96640;
+            margin: 12px 0;
+        }
 
-  /* ── TOAST ── */
-  .toast {
-    position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-20px);
-    background: #111; color: #fff; padding: 10px 18px; border-radius: 20px;
-    font-size: 13px; font-weight: 500; z-index: 200;
-    opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .footer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 20px;
+            color: #c0a26b;
+        }
 
-  /* ── CALC TOOL ── */
-  .calc-result {
-    background: var(--green-light); border-radius: var(--radius-sm);
-    padding: 14px; margin-top: 14px;
-  }
-  .calc-result-main { font-size: 28px; font-weight: 800; color: var(--green); letter-spacing: -1px; }
-  .calc-result-rows { margin-top: 8px; }
-  .calc-result-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--gray); padding: 3px 0; }
-  .calc-result-row span:last-child { font-weight: 600; color: var(--green); }
-</style>
+        button {
+            background: none;
+            border: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #221d15;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #f3a712;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
+<div class="container">
+    <h1>⚔️ RW MARKET ⚔️</h1>
+    <div class="sub">калькулятор • стаки • безопасная цена</div>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-row">
-    <div class="logo">
-      <div class="logo-icon">🛍</div>
-      <div class="logo-text">ResellPro</div>
+    <div class="input-group">
+        <label>💰 Сумма перевода <i>нужно получить</i></label>
+        <input type="number" id="targetAmount" value="5000000" step="1" placeholder="например 5000000">
     </div>
-    <div class="rate-chip" onclick="showRateSheet()">💱 CNY <span id="rate-display">0.41</span></div>
-  </div>
-</div>
 
-<!-- PAGES -->
-
-<!-- DASHBOARD -->
-<div class="page active" id="page-home">
-  <div class="metrics-grid">
-    <div class="metric">
-      <div class="metric-label">Заказов</div>
-      <div class="metric-value" id="m-total">0</div>
-      <div class="metric-sub">всего</div>
+    <div class="input-group">
+        <label>📦 Лимит цены за 1 предмет <i>макс. значение /market sell</i></label>
+        <input type="number" id="maxPrice" value="17000" step="1" placeholder="макс цена за 1 шт">
     </div>
-    <div class="metric">
-      <div class="metric-label">В работе</div>
-      <div class="metric-value" id="m-active">0</div>
-      <div class="metric-sub">активных</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Выручка</div>
-      <div class="metric-value" id="m-rev">0</div>
-      <div class="metric-sub">BYN продажи</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Прибыль</div>
-      <div class="metric-value metric-up" id="m-profit">0</div>
-      <div class="metric-sub">BYN чистая</div>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">📦 Последние заказы</div>
-      <div style="font-size:13px;color:var(--accent);cursor:pointer" onclick="switchTab('orders')">Все →</div>
-    </div>
-    <div class="card-body" id="recent-list" style="padding:0;"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-header"><div class="card-title">📊 По статусам</div></div>
-    <div class="card-body" id="status-chart"></div>
-  </div>
-</div>
-
-<!-- ORDERS -->
-<div class="page" id="page-orders">
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input class="search-input" id="search-q" placeholder="Поиск по клиенту, товару..." oninput="renderOrders()">
-  </div>
-  <div class="filter-chips" id="filter-chips">
-    <div class="chip active" data-status="" onclick="setFilter(this)">Все</div>
-    <div class="chip" data-status="Ожидает" onclick="setFilter(this)">🟡 Ожидает</div>
-    <div class="chip" data-status="Оплачен" onclick="setFilter(this)">💳 Оплачен</div>
-    <div class="chip" data-status="Едет" onclick="setFilter(this)">🚚 Едет</div>
-    <div class="chip" data-status="Доставлен" onclick="setFilter(this)">📦 Доставлен</div>
-    <div class="chip" data-status="Выдан" onclick="setFilter(this)">✅ Выдан</div>
-  </div>
-  <div id="orders-list"></div>
-</div>
-
-<!-- KANBAN -->
-<div class="page" id="page-kanban">
-  <div class="kanban-cols" id="kanban-board"></div>
-</div>
-
-<!-- ANALYTICS -->
-<div class="page" id="page-analytics">
-  <div class="metrics-grid">
-    <div class="metric">
-      <div class="metric-label">Средний чек</div>
-      <div class="metric-value" id="a-avg">0</div>
-      <div class="metric-sub">BYN</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Ср. наценка</div>
-      <div class="metric-value metric-up" id="a-markup">0%</div>
-      <div class="metric-sub">маржа</div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:12px;">
-    <div class="card-header"><div class="card-title">👤 Топ клиенты</div></div>
-    <div class="card-body" id="top-customers"></div>
-  </div>
-  <div class="card" style="margin-bottom:12px;">
-    <div class="card-header"><div class="card-title">🏪 По поставщикам</div></div>
-    <div class="card-body" id="top-suppliers"></div>
-  </div>
-  <div class="card">
-    <div class="card-header"><div class="card-title">🧮 Калькулятор</div></div>
-    <div class="card-body">
-      <div class="form-row">
-        <div class="form-group" style="margin-bottom:0">
-          <label class="form-label">Цена CNY</label>
-          <input class="form-input" type="number" id="calc-cny" placeholder="850" oninput="runCalc()">
+    <div class="input-group">
+        <label>🧩 Макс. стаков для поиска <i>рекомендуем 1-25</i></label>
+        <input type="number" id="maxStacks" value="20" step="1" min="1" max="50">
+        <div class="slider-info">
+            <span>⚡ Меньше стаков = быстрее сделка</span>
+            <span>📦 1 стак = 64 предмета</span>
         </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label class="form-label">Наценка %</label>
-          <input class="form-input" type="number" id="calc-markup" placeholder="30" value="30" oninput="runCalc()">
-        </div>
-      </div>
-      <div class="calc-result" id="calc-result" style="display:none;">
-        <div style="font-size:12px;color:var(--gray);margin-bottom:4px;">Цена продажи</div>
-        <div class="calc-result-main" id="calc-main">0 р.</div>
-        <div class="calc-result-rows" id="calc-rows"></div>
-      </div>
     </div>
-  </div>
-</div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <div class="nav-btn active" id="nav-home" onclick="switchTab('home')">
-    <div class="nav-btn-icon">🏠</div>
-    <div>Главная</div>
-  </div>
-  <div class="nav-btn" id="nav-orders" onclick="switchTab('orders')">
-    <div class="nav-btn-icon">📋</div>
-    <div>Заказы</div>
-  </div>
-  <div class="nav-btn" id="nav-kanban" onclick="switchTab('kanban')">
-    <div class="nav-btn-icon">📌</div>
-    <div>Канбан</div>
-  </div>
-  <div class="nav-btn" id="nav-analytics" onclick="switchTab('analytics')">
-    <div class="nav-btn-icon">📈</div>
-    <div>Аналитика</div>
-  </div>
-</div>
+    <button class="calc-btn" id="calcBtn">🔨 РАССЧИТАТЬ</button>
 
-<!-- FAB -->
-<button class="fab" onclick="openAddSheet()" aria-label="Добавить заказ">+</button>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- ── SHEETS ── -->
-
-<!-- ADD ORDER SHEET -->
-<div class="sheet-overlay" id="sheet-add" onclick="closeSheet('sheet-add', event)">
-  <div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title" id="sheet-add-title">Новый заказ</div>
-    <div class="sheet-body">
-      <input type="hidden" id="edit-id">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Клиент</label>
-          <input class="form-input" id="f-customer" placeholder="Имя" autocomplete="off">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Контакт</label>
-          <input class="form-input" id="f-contact" placeholder="+375...">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Товар</label>
-        <input class="form-input" id="f-item" placeholder="Nike Dunk Low, 42">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Цена CNY ¥</label>
-          <input class="form-input" type="number" id="f-cny" placeholder="850" oninput="onCnyInput()">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Продажа BYN</label>
-          <input class="form-input" type="number" id="f-sale" placeholder="авто" oninput="onSaleInput()">
-        </div>
-      </div>
-      <div class="form-calc" id="f-calc" style="display:none;"></div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Поставщик</label>
-          <input class="form-input" id="f-supplier" placeholder="Poizon...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Статус</label>
-          <select class="form-input" id="f-status">
-            <option>Ожидает</option><option>Оплачен</option><option>Едет</option>
-            <option>Доставлен</option><option>Выдан</option><option>Отменён</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Комментарий</label>
-        <input class="form-input" id="f-comment" placeholder="Доп. инфо...">
-      </div>
-      <button class="btn btn-primary" onclick="saveOrder()">Сохранить заказ</button>
-      <button class="btn btn-danger" id="btn-delete" onclick="deleteCurrentOrder()" style="display:none;">Удалить заказ</button>
+    <div class="results" id="resultsArea">
+        <div style="text-align:center; color:#ffe2b5;">⚙️ Введи параметры и нажми "РАССЧИТАТЬ"<br>✅ Подберём цену без потерь!</div>
     </div>
-  </div>
-</div>
-
-<!-- ORDER DETAIL SHEET -->
-<div class="sheet-overlay" id="sheet-detail" onclick="closeSheet('sheet-detail', event)">
-  <div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title" id="detail-title">Заказ</div>
-    <div class="sheet-body">
-      <div id="detail-content"></div>
-      <div style="margin-top:16px;">
-        <div style="font-size:13px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Изменить статус</div>
-        <div class="status-grid" id="detail-status-btns"></div>
-      </div>
-      <button class="btn btn-primary" onclick="editFromDetail()">✏️ Редактировать</button>
+    <div class="footer">
+        🧠 Логика: цена за 1 шт × (стаки×64) ≥ нужная сумма,<br>
+        цена ≤ лимит, округление вверх → целое число.
     </div>
-  </div>
-</div>
-
-<!-- RATE SHEET -->
-<div class="sheet-overlay" id="sheet-rate" onclick="closeSheet('sheet-rate', event)">
-  <div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Курс CNY → BYN</div>
-    <div class="sheet-body">
-      <div class="form-group">
-        <label class="form-label">1 CNY = ? BYN</label>
-        <input class="form-input" type="number" step="0.001" id="rate-input" value="0.41">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Наценка по умолчанию (%)</label>
-        <input class="form-input" type="number" id="markup-input" value="30">
-      </div>
-      <button class="btn btn-primary" onclick="saveRate()">Сохранить</button>
-    </div>
-  </div>
 </div>
 
 <script>
-// ─── STATE ───
-let CNY = 0.41, MARKUP = 30;
-let orders = [];
-let filterStatus = '';
-let viewDetailId = null;
+    (function() {
+        // ----- ЛОГИКА расчёта (полностью по ТЗ) -----
+        // 1 стак = 64 предмета
+        const STACK_SIZE = 64;
 
-const STATUSES = ['Ожидает','Оплачен','Едет','Доставлен','Выдан','Отменён'];
-const STATUS_BADGE = {
-  'Ожидает':'badge-yellow','Оплачен':'badge-blue','Едет':'badge-indigo',
-  'Доставлен':'badge-green','Выдан':'badge-emerald','Отменён':'badge-red'
-};
-const STATUS_EMOJI = {
-  'Ожидает':'🟡','Оплачен':'💳','Едет':'🚚','Доставлен':'📦','Выдан':'✅','Отменён':'❌'
-};
+        function findOptions(target, maxPricePerItem, maxStacksLimit) {
+            const options = [];
 
-// ─── TELEGRAM INIT ───
-const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-  tg.setHeaderColor('#ffffff');
-}
-
-// ─── STORAGE ───
-function load() {
-  const s = localStorage.getItem('resell_v2');
-  if (s) { const d = JSON.parse(s); orders = d.orders||[]; CNY = d.cny||0.41; MARKUP = d.markup||30; }
-  if (!orders.length) orders = DEMO;
-  document.getElementById('rate-display').textContent = CNY;
-  document.getElementById('rate-input').value = CNY;
-  document.getElementById('markup-input').value = MARKUP;
-}
-function save() { localStorage.setItem('resell_v2', JSON.stringify({orders,cny:CNY,markup:MARKUP})); }
-
-const DEMO = [
-  {id:'ORD-20250516-0001',customer:'Алексей К.',contact:'+375291111111',item:'Nike Dunk Low Panda 42',cny:620,byn:254.2,sale:380,supplier:'Poizon',status:'Выдан',comment:'',date:'2025-05-10 14:22'},
-  {id:'ORD-20250516-0002',customer:'Марина Р.',contact:'@marina_r',item:'New Balance 550 White 38',cny:480,byn:196.8,sale:290,supplier:'Taobao',status:'Доставлен',comment:'Ждёт самовывоза',date:'2025-05-13 11:05'},
-  {id:'ORD-20250516-0003',customer:'Дима С.',contact:'+375447654321',item:'Jordan 1 Retro High OG 44',cny:1100,byn:451,sale:650,supplier:'Poizon',status:'Едет',comment:'',date:'2025-05-14 16:40'},
-  {id:'ORD-20250516-0004',customer:'Катя В.',contact:'@katya_v',item:'Adidas Samba OG 37',cny:390,byn:159.9,sale:240,supplier:'1688',status:'Оплачен',comment:'Нужна упаковка',date:'2025-05-15 09:12'},
-  {id:'ORD-20250516-0005',customer:'Игорь М.',contact:'+375333210987',item:'Yeezy 350 V2 Cream 43',cny:850,byn:348.5,sale:520,supplier:'Taobao',status:'Ожидает',comment:'',date:'2025-05-16 10:00'},
-  {id:'ORD-20250516-0006',customer:'Настя Б.',contact:'@nastya_b',item:'Converse 70s High Black 37',cny:280,byn:114.8,sale:175,supplier:'Taobao',status:'Ожидает',comment:'',date:'2025-05-16 12:00'},
-];
-
-// ─── UTILS ───
-function genId() {
-  const d = new Date(), pad = n => String(n).padStart(2,'0');
-  return `ORD-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${String(orders.length+1).padStart(4,'0')}`;
-}
-function byn(cny) { return Math.round(cny * CNY * 100) / 100; }
-function profit(b, s) { return Math.round((s - b) * 100) / 100; }
-function pct(b, s) { return b > 0 ? Math.round((s-b)/b*100) : 0; }
-function fmt(n) { return Number(n).toFixed(0); }
-
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
-}
-
-// ─── SHEETS ───
-function openSheet(id) { document.getElementById(id).classList.add('open'); }
-function closeSheet(id, e) {
-  if (!e || e.target === document.getElementById(id))
-    document.getElementById(id).classList.remove('open');
-}
-
-// ─── TABS ───
-function switchTab(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.getElementById('nav-'+name)?.classList.add('active');
-  if (name === 'orders') renderOrders();
-  if (name === 'kanban') renderKanban();
-  if (name === 'analytics') renderAnalytics();
-}
-
-// ─── FILTER ───
-function setFilter(el) {
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  filterStatus = el.dataset.status;
-  renderOrders();
-}
-
-// ─── DASHBOARD ───
-function renderDashboard() {
-  const total = orders.length;
-  const active = orders.filter(o => ['Ожидает','Оплачен','Едет'].includes(o.status)).length;
-  const rev = orders.reduce((a,o) => a+(o.sale||0), 0);
-  const prof = orders.reduce((a,o) => a+(o.sale ? profit(o.byn,o.sale) : 0), 0);
-
-  document.getElementById('m-total').textContent = total;
-  document.getElementById('m-active').textContent = active;
-  document.getElementById('m-rev').textContent = fmt(rev)+' р.';
-  document.getElementById('m-profit').textContent = '+'+fmt(prof)+' р.';
-
-  // recent
-  const recent = [...orders].reverse().slice(0,5);
-  const rl = document.getElementById('recent-list');
-  rl.innerHTML = recent.length ? recent.map(o => `
-    <div onclick="openDetail('${o.id}')" style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;">
-      <div>
-        <div style="font-size:14px;font-weight:600;">${o.customer}</div>
-        <div style="font-size:12px;color:var(--gray)">${o.item.slice(0,28)}</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-size:14px;font-weight:700;color:var(--accent)">${o.sale||o.byn} р.</div>
-        <span class="badge ${STATUS_BADGE[o.status]||'badge-blue'}">${o.status}</span>
-      </div>
-    </div>
-  `).join('') : '<div style="padding:20px;text-align:center;color:var(--gray)">Нет заказов</div>';
-
-  // status chart
-  const sc = document.getElementById('status-chart');
-  const maxC = Math.max(...STATUSES.map(s => orders.filter(o=>o.status===s).length), 1);
-  sc.innerHTML = STATUSES.map(s => {
-    const cnt = orders.filter(o => o.status===s).length;
-    if (!cnt) return '';
-    return `<div class="stat-row">
-      <div class="stat-name">${STATUS_EMOJI[s]} ${s}</div>
-      <div class="stat-bar-wrap"><div class="stat-bar" style="width:${Math.round(cnt/maxC*100)}%"></div></div>
-      <div class="stat-val">${cnt}</div>
-    </div>`;
-  }).join('');
-}
-
-// ─── ORDERS ───
-function renderOrders() {
-  const q = document.getElementById('search-q').value.toLowerCase();
-  const list = orders.filter(o => {
-    const matchQ = !q || o.customer.toLowerCase().includes(q) || o.item.toLowerCase().includes(q) || o.id.toLowerCase().includes(q);
-    const matchS = !filterStatus || o.status === filterStatus;
-    return matchQ && matchS;
-  }).reverse();
-
-  const el = document.getElementById('orders-list');
-  if (!list.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">Ничего не найдено</div></div>`;
-    return;
-  }
-  el.innerHTML = list.map(o => {
-    const prof = o.sale ? profit(o.byn, o.sale) : null;
-    return `<div class="order-card" onclick="openDetail('${o.id}')">
-      <div class="order-card-top">
-        <div>
-          <div class="order-id">${o.id}</div>
-          <div class="order-customer">${o.customer}</div>
-        </div>
-        <span class="badge ${STATUS_BADGE[o.status]||'badge-blue'}">${o.status}</span>
-      </div>
-      <div class="order-item">${o.item}</div>
-      <div class="order-footer">
-        <div class="order-price">${o.sale||o.byn} р.</div>
-        ${prof !== null ? `<div class="order-profit">+${prof} р. прибыли</div>` : ''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ─── KANBAN ───
-function renderKanban() {
-  const board = document.getElementById('kanban-board');
-  board.innerHTML = STATUSES.slice(0,-1).map(s => {
-    const items = orders.filter(o => o.status === s);
-    return `<div class="kan-col">
-      <div class="kan-head">${s} <span class="kan-count">${items.length}</span></div>
-      ${items.length ? items.map(o => `
-        <div class="kan-card" onclick="openDetail('${o.id}')">
-          <div class="kan-card-name">${o.customer}</div>
-          <div class="kan-card-item">${o.item}</div>
-          <div class="kan-card-price">${o.sale||o.byn} р.</div>
-        </div>
-      `).join('') : '<div style="font-size:12px;color:var(--gray);text-align:center;padding:10px;">пусто</div>'}
-    </div>`;
-  }).join('');
-}
-
-// ─── ANALYTICS ───
-function renderAnalytics() {
-  const withSale = orders.filter(o => o.sale);
-  const avg = withSale.length ? withSale.reduce((a,o)=>a+o.sale,0)/withSale.length : 0;
-  const avgM = withSale.length ? withSale.reduce((a,o)=>a+pct(o.byn,o.sale),0)/withSale.length : 0;
-  document.getElementById('a-avg').textContent = fmt(avg)+' р.';
-  document.getElementById('a-markup').textContent = fmt(avgM)+'%';
-
-  // customers
-  const cm = {}; orders.forEach(o => { cm[o.customer]=(cm[o.customer]||0)+(o.sale||0); });
-  const topC = Object.entries(cm).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const maxC = topC[0]?.[1]||1;
-  document.getElementById('top-customers').innerHTML = topC.map(([n,v])=>`
-    <div class="stat-row">
-      <div class="stat-name" style="min-width:100px">${n}</div>
-      <div class="stat-bar-wrap"><div class="stat-bar" style="width:${Math.round(v/maxC*100)}%"></div></div>
-      <div class="stat-val">${fmt(v)} р.</div>
-    </div>
-  `).join('') || '<div style="color:var(--gray);font-size:13px">Нет данных</div>';
-
-  // suppliers
-  const sm = {}; orders.forEach(o => { if(o.supplier){ sm[o.supplier]=(sm[o.supplier]||{count:0,profit:0}); sm[o.supplier].count++; sm[o.supplier].profit+=(o.sale?profit(o.byn,o.sale):0); }});
-  const topS = Object.entries(sm).sort((a,b)=>b[1].profit-a[1].profit);
-  document.getElementById('top-suppliers').innerHTML = topS.map(([n,d])=>`
-    <div class="stat-row">
-      <div class="stat-name" style="min-width:90px">${n}</div>
-      <div style="flex:1;font-size:12px;color:var(--gray)">${d.count} зак.</div>
-      <div class="stat-val">+${fmt(d.profit)} р.</div>
-    </div>
-  `).join('') || '<div style="color:var(--gray);font-size:13px">Нет данных</div>';
-}
-
-// ─── CALC ───
-function runCalc() {
-  const cny = parseFloat(document.getElementById('calc-cny').value);
-  const mk = parseFloat(document.getElementById('calc-markup').value)||MARKUP;
-  const res = document.getElementById('calc-result');
-  if (!cny) { res.style.display='none'; return; }
-  const costByn = byn(cny);
-  const saleByn = Math.round(costByn*(1+mk/100)*100)/100;
-  const prof = Math.round((saleByn-costByn)*100)/100;
-  res.style.display='block';
-  document.getElementById('calc-main').textContent = saleByn+' р.';
-  document.getElementById('calc-rows').innerHTML = `
-    <div class="calc-result-row"><span>Закуп BYN</span><span>${costByn} р.</span></div>
-    <div class="calc-result-row"><span>Прибыль</span><span>+${prof} р.</span></div>
-    <div class="calc-result-row"><span>Наценка</span><span>${mk}%</span></div>
-  `;
-}
-
-// ─── ADD / EDIT ───
-function openAddSheet() {
-  document.getElementById('edit-id').value = '';
-  document.getElementById('sheet-add-title').textContent = 'Новый заказ';
-  ['f-customer','f-contact','f-item','f-sale','f-supplier','f-comment'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-cny').value='';
-  document.getElementById('f-status').value='Ожидает';
-  document.getElementById('f-calc').style.display='none';
-  document.getElementById('btn-delete').style.display='none';
-  openSheet('sheet-add');
-}
-
-function onCnyInput() {
-  const cny = parseFloat(document.getElementById('f-cny').value);
-  if (!cny) { document.getElementById('f-calc').style.display='none'; return; }
-  const costByn = byn(cny);
-  const suggested = Math.round(costByn*(1+MARKUP/100)*100)/100;
-  document.getElementById('f-calc').style.display='block';
-  document.getElementById('f-calc').textContent = `Закуп: ${costByn} р. → рекомендую продать за ${suggested} р. (${MARKUP}%)`;
-  if (!document.getElementById('f-sale').value) document.getElementById('f-sale').value = suggested;
-  onSaleInput();
-}
-
-function onSaleInput() {
-  const cny = parseFloat(document.getElementById('f-cny').value);
-  const sale = parseFloat(document.getElementById('f-sale').value);
-  if (!cny || !sale) return;
-  const costByn = byn(cny);
-  const prof = profit(costByn, sale);
-  const mk = pct(costByn, sale);
-  document.getElementById('f-calc').style.display='block';
-  document.getElementById('f-calc').textContent = `Закуп: ${costByn} р. → Прибыль: +${prof} р. (${mk}%)`;
-}
-
-function saveOrder() {
-  const customer = document.getElementById('f-customer').value.trim();
-  const item = document.getElementById('f-item').value.trim();
-  const cny = parseFloat(document.getElementById('f-cny').value);
-  if (!customer || !item || !cny) { toast('Заполните клиента, товар и цену'); return; }
-
-  const costByn = byn(cny);
-  const sale = parseFloat(document.getElementById('f-sale').value) || Math.round(costByn*(1+MARKUP/100)*100)/100;
-  const d = new Date(), pad=n=>String(n).padStart(2,'0');
-  const date = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-
-  const editId = document.getElementById('edit-id').value;
-  if (editId) {
-    const idx = orders.findIndex(o=>o.id===editId);
-    if (idx>=0) orders[idx] = {...orders[idx], customer, contact:document.getElementById('f-contact').value, item, cny, byn:costByn, sale, supplier:document.getElementById('f-supplier').value, status:document.getElementById('f-status').value, comment:document.getElementById('f-comment').value};
-  } else {
-    orders.push({id:genId(), customer, contact:document.getElementById('f-contact').value, item, cny, byn:costByn, sale, supplier:document.getElementById('f-supplier').value||'—', status:document.getElementById('f-status').value, comment:document.getElementById('f-comment').value, date});
-  }
-  save(); refreshAll();
-  closeSheet('sheet-add');
-  toast(editId ? '✅ Заказ обновлён' : '✅ Заказ добавлен');
-
-  // notify Telegram bot
-  if (tg) tg.sendData(JSON.stringify({action: editId?'update':'add', id: editId||orders[orders.length-1].id}));
-}
-
-function deleteCurrentOrder() {
-  const id = document.getElementById('edit-id').value;
-  if (!id) return;
-  if (!confirm('Удалить заказ?')) return;
-  orders = orders.filter(o=>o.id!==id);
-  save(); refreshAll(); closeSheet('sheet-add'); toast('🗑 Удалено');
-}
-
-// ─── DETAIL ───
-function openDetail(id) {
-  viewDetailId = id;
-  const o = orders.find(x=>x.id===id);
-  if (!o) return;
-  document.getElementById('detail-title').textContent = o.customer;
-  const prof = o.sale ? profit(o.byn, o.sale) : null;
-  const mk = o.sale ? pct(o.byn, o.sale) : null;
-
-  document.getElementById('detail-content').innerHTML = `
-    <div style="margin-bottom:12px;">
-      <span class="badge ${STATUS_BADGE[o.status]||'badge-blue'}" style="font-size:13px;padding:5px 12px">${STATUS_EMOJI[o.status]} ${o.status}</span>
-    </div>
-    <div class="detail-row"><span class="detail-label">ID</span><span class="detail-value" style="font-family:monospace;font-size:12px">${o.id}</span></div>
-    <div class="detail-row"><span class="detail-label">Контакт</span><span class="detail-value">${o.contact||'—'}</span></div>
-    <div class="detail-row"><span class="detail-label">Товар</span><span class="detail-value">${o.item}</span></div>
-    <div class="detail-row"><span class="detail-label">Цена закупки</span><span class="detail-value">${o.cny} ¥ = ${o.byn} р.</span></div>
-    <div class="detail-row"><span class="detail-label">Цена продажи</span><span class="detail-value" style="color:var(--accent);font-size:16px;font-weight:700">${o.sale||'—'} р.</span></div>
-    ${prof!==null?`<div class="detail-row"><span class="detail-label">Прибыль</span><span class="detail-value" style="color:var(--green)">+${prof} р. (${mk}%)</span></div>`:''}
-    <div class="detail-row"><span class="detail-label">Поставщик</span><span class="detail-value">${o.supplier||'—'}</span></div>
-    ${o.comment?`<div class="detail-row"><span class="detail-label">Комментарий</span><span class="detail-value">${o.comment}</span></div>`:''}
-    <div class="detail-row"><span class="detail-label">Дата</span><span class="detail-value">${o.date||'—'}</span></div>
-  `;
-
-  document.getElementById('detail-status-btns').innerHTML = STATUSES.map(s => `
-    <button class="status-btn ${o.status===s?'selected':''}" onclick="setStatus('${id}','${s}',this)">${STATUS_EMOJI[s]} ${s}</button>
-  `).join('');
-
-  openSheet('sheet-detail');
-}
-
-function setStatus(id, status, btn) {
-  const o = orders.find(x=>x.id===id);
-  if (!o) return;
-  o.status = status;
-  save(); refreshAll();
-  document.querySelectorAll('#detail-status-btns .status-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  // update badge in detail
-  document.querySelector('#detail-content .badge').className = `badge ${STATUS_BADGE[status]||'badge-blue'}`;
-  document.querySelector('#detail-content .badge').textContent = `${STATUS_EMOJI[status]} ${status}`;
-  toast(`${STATUS_EMOJI[status]} Статус: ${status}`);
-  if (tg) tg.sendData(JSON.stringify({action:'status', id, status}));
-}
-
-function editFromDetail() {
-  closeSheet('sheet-detail');
-  setTimeout(()=>{
-    const o = orders.find(x=>x.id===viewDetailId);
-    if (!o) return;
-    document.getElementById('edit-id').value = o.id;
-    document.getElementById('sheet-add-title').textContent = 'Редактировать';
-    document.getElementById('f-customer').value = o.customer;
-    document.getElementById('f-contact').value = o.contact||'';
-    document.getElementById('f-item').value = o.item;
-    document.getElementById('f-cny').value = o.cny;
-    document.getElementById('f-sale').value = o.sale||'';
-    document.getElementById('f-supplier').value = o.supplier||'';
-    document.getElementById('f-status').value = o.status;
-    document.getElementById('f-comment').value = o.comment||'';
-    document.getElementById('btn-delete').style.display='block';
-    onCnyInput();
-    openSheet('sheet-add');
-  }, 300);
-}
-
-// ─── RATE ───
-function showRateSheet() { openSheet('sheet-rate'); }
-function saveRate() {
-  CNY = parseFloat(document.getElementById('rate-input').value)||0.41;
-  MARKUP = parseFloat(document.getElementById('markup-input').value)||30;
-  document.getElementById('rate-display').textContent = CNY;
-  save(); refreshAll(); closeSheet('sheet-rate');
-  toast('✅ Настройки сохранены');
-}
-
-// ─── REFRESH ───
-function refreshAll() {
-  renderDashboard();
-  if (document.getElementById('page-orders').classList.contains('active')) renderOrders();
-  if (document.getElementById('page-kanban').classList.contains('active')) renderKanban();
-  if (document.getElementById('page-analytics').classList.contains('active')) renderAnalytics();
-}
-
-// ─── INIT ───
-load();
-refreshAll();
+            for (let stacks = 1; stacks <= maxStacksLimit; stacks++) {
+                const totalItems = stacks * STACK_SIZE;   // всего предметов за все стаки
+                // базовая цена за 1 шт (целочисленное деление)
+                const basePrice = Math.floor(target / totalItems);
+                
+                // проверяем два варианта: basePrice и basePrice+1 (округление вверх, чтобы не потерять)
+                const candidates = [basePrice, basePrice + 1];
+                
+                for (let price of candidates) {
+                    if (price <= 0) continue;
+                    if (price > maxPricePerItem) continue;
+                    
+                    const totalReceived = price * totalItems;
+                    const difference = totalReceived - target;   // переплата / остаток
+                    // условие: получили НЕ МЕНЬШЕ, чем нужно (нельзя недополучить)
+                    if (difference >= 0) {
+                        options.push({
+                            stacks: stacks,
+                            pricePerItem: price,
+                            totalReceived: totalReceived,
+                            difference: difference
+                        });
+                    }
+                }
+            }
+            
+            // сортировка: 1) меньше стаков, 2) минимальная разница (чем точнее, тем лучше)
+            options.sort((a, b) => {
+                if (a.stacks !== b.stacks) return a.stacks - b.stacks;
+                return a.difference - b.difference;
+            });
+            
+            return options;
+        }
+        
+        function formatNumber(num) {
+            return num.toLocaleString('ru-RU');
+        }
+        
+        function renderResults(target, maxPricePerItem, maxStacksLimit) {
+            const resultsDiv = document.getElementById('resultsArea');
+            
+            // Валидация
+            if (isNaN(target) || target <= 0) {
+                resultsDiv.innerHTML = `<div style="background:#8b3c2c; padding:16px; border-radius:28px;">❌ Ошибка: сумма перевода должна быть положительным числом.</div>`;
+                return;
+            }
+            if (isNaN(maxPricePerItem) || maxPricePerItem <= 0) {
+                resultsDiv.innerHTML = `<div style="background:#8b3c2c; padding:16px; border-radius:28px;">❌ Лимит цены должен быть больше 0.</div>`;
+                return;
+            }
+            if (isNaN(maxStacksLimit) || maxStacksLimit < 1) {
+                resultsDiv.innerHTML = `<div style="background:#8b3c2c; padding:16px; border-radius:28px;">❌ Максимум стаков должен быть хотя бы 1.</div>`;
+                return;
+            }
+            
+            const options = findOptions(target, maxPricePerItem, maxStacksLimit);
+            
+            if (options.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div style="text-align:center;">
+                        <span style="font-size:2rem;">⚠️</span>
+                        <p style="margin:12px 0 0 0;"><strong>Нет вариантов</strong><br>
+                        Попробуйте увеличить "Макс. стаков для поиска"<br>
+                        или поднять лимит цены за предмет.</p>
+                        <small style="display:block; margin-top:12px;">💡 Совет: 1 стак = 64 шт, чем больше стаков — тем ниже цена за 1 предмет.</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            const best = options[0];
+            // Генерируем HTML
+            let optionsHtml = `<div style="margin-top:8px; font-weight:bold;">📋 Все подходящие варианты (${options.length}):</div><div class="option-list">`;
+            for (let opt of options) {
+                const diffText = opt.difference === 0 ? '🎯 ТОЧНО' : `➕ лишних ${formatNumber(opt.difference)}`;
+                optionsHtml += `
+                    <div class="option-item">
+                        <span>📦 ${opt.stacks} стак(ов) / ${opt.stacks * STACK_SIZE} шт</span>
+                        <span class="badge">💰 ${formatNumber(opt.pricePerItem)} /шт</span>
+                        <span>🧾 итог ${formatNumber(opt.totalReceived)}</span>
+                        <span style="color:#ffbc6e;">${diffText}</span>
+                    </div>
+                `;
+            }
+            optionsHtml += `</div>`;
+            
+            const perfectBadge = best.difference === 0 ? "✅ ИДЕАЛЬНО! Без переплаты" : `⚠️ Переплата: ${formatNumber(best.difference)} монет (минимальная возможная)`;
+            
+            const fullHtml = `
+                <div class="best-card">
+                    <div style="font-size:0.85rem; letter-spacing:1px;">🏆 РЕКОМЕНДУЕМЫЙ СПОСОБ</div>
+                    <div style="font-size:1rem; margin: 5px 0;">⚡ ${best.stacks} стак(ов) ⚡</div>
+                    <div class="best-price">${formatNumber(best.pricePerItem)} монет / 1 предмет</div>
+                    <div class="command" style="margin-top: 12px;">/market sell ${best.pricePerItem}</div>
+                    <div style="margin-top: 12px; background:#16100a; border-radius:40px; padding:6px;">
+                        🧾 Итого получите: <strong>${formatNumber(best.totalReceived)}</strong> из ${formatNumber(target)} нужных<br>
+                        ${perfectBadge}
+                    </div>
+                    <div style="margin-top: 12px; font-size:0.75rem;">🔄 Выставить ${best.stacks} раз(а) с полным стаком (64 предмета) в руке</div>
+                </div>
+                ${optionsHtml}
+                <hr>
+                <div style="font-size:0.75rem; margin-top: 6px;">
+                📐 Формула: цена за 1шт × (стаки × 64) = результат ≥ нужная сумма<br>
+                🧮 Округление всегда вверх, чтобы сервер не списал меньше.
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = fullHtml;
+        }
+        
+        // Обработчики
+        const calcButton = document.getElementById('calcBtn');
+        const targetInput = document.getElementById('targetAmount');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const maxStacksInput = document.getElementById('maxStacks');
+        
+        function performCalculation() {
+            const target = parseFloat(targetInput.value);
+            const maxPrice = parseFloat(maxPriceInput.value);
+            const maxStacks = parseInt(maxStacksInput.value, 10);
+            
+            // Для целых денег (валюты) – используем целые числа
+            if (!Number.isInteger(target) || !Number.isInteger(maxPrice)) {
+                // но можно и с плавающей, но в майнкрафте обычно целые
+                if (!Number.isFinite(target) || !Number.isFinite(maxPrice)) {
+                    alert('Пожалуйста, введите целые числа (монеты)');
+                    return;
+                }
+            }
+            renderResults(Math.floor(target), Math.floor(maxPrice), Math.floor(maxStacks));
+        }
+        
+        calcButton.addEventListener('click', performCalculation);
+        
+        // При нажатии Enter тоже считаем
+        const inputs = [targetInput, maxPriceInput, maxStacksInput];
+        inputs.forEach(inp => {
+            inp.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performCalculation();
+            });
+        });
+        
+        // Первый авто-расчёт при загрузке страницы (чтобы сразу увидеть 5.000.000 пример)
+        setTimeout(() => {
+            performCalculation();
+        }, 50);
+    })();
 </script>
 </body>
 </html>
