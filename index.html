@@ -7,12 +7,11 @@
     <style>
         * {
             box-sizing: border-box;
-            user-select: none; /* Удобно на мобилках, но текст можно копировать */
         }
 
         body {
-            background: linear-gradient(145deg, #1a472a 0%, #0e2a1a 100%);
-            font-family: 'Segoe UI', 'Minecraft', 'Courier New', monospace;
+            background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d5 100%);
+            font-family: 'Segoe UI', -apple-system, 'Minecraft', 'Courier New', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -21,38 +20,38 @@
             padding: 20px;
         }
 
-        /* Главная карточка */
+        /* Главная карточка — светлая */
         .container {
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
-            background: rgba(30, 20, 15, 0.85);
-            backdrop-filter: blur(8px);
-            border-radius: 48px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255,255,255,0.1);
-            padding: 24px 22px 36px;
-            border: 1px solid #ffd966;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
+            padding: 28px 26px 36px;
             transition: all 0.2s;
+            border: 1px solid #ddd0bc;
         }
 
         h1 {
             text-align: center;
-            font-size: 1.9rem;
-            margin: 0 0 8px 0;
-            color: #ffd966;
-            text-shadow: 3px 3px 0 #5a3e1a;
-            letter-spacing: 2px;
-            word-break: keep-all;
+            font-size: 2rem;
+            margin: 0 0 6px 0;
+            color: #2c5a2e;
+            text-shadow: none;
+            letter-spacing: 1px;
+            font-weight: 800;
         }
 
         .sub {
             text-align: center;
-            color: #d4c4a8;
-            font-size: 0.8rem;
+            color: #6b5a44;
+            font-size: 0.85rem;
             margin-bottom: 28px;
-            border-bottom: 1px dashed #ffd96680;
+            border-bottom: 2px solid #e2d5c0;
             display: inline-block;
             width: 100%;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
+            font-weight: 500;
         }
 
         /* Поля ввода */
@@ -63,158 +62,172 @@
         }
 
         label {
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 8px;
-            color: #f3e1b3;
-            font-size: 1rem;
+            color: #3e2e1f;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         label i {
             font-style: normal;
-            background: #2c1a0e;
-            padding: 2px 10px;
+            background: #e9e0d3;
+            padding: 4px 12px;
             border-radius: 40px;
-            font-size: 0.75rem;
-            color: #ffbc6e;
+            font-size: 0.7rem;
+            color: #5a3e28;
+            font-weight: normal;
         }
 
         input {
-            background: #2d2418;
-            border: 2px solid #b97f44;
+            background: #fefcf8;
+            border: 2px solid #d4c4ac;
             padding: 14px 18px;
-            border-radius: 60px;
+            border-radius: 50px;
             font-size: 1.2rem;
-            font-family: monospace;
-            font-weight: bold;
-            color: #ffefcf;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #2b2a27;
             outline: none;
             transition: 0.2s;
         }
 
         input:focus {
-            border-color: #ffb347;
-            box-shadow: 0 0 0 3px rgba(255, 180, 71, 0.4);
-            background: #3b2c1c;
+            border-color: #7cb342;
+            box-shadow: 0 0 0 3px rgba(124, 179, 66, 0.2);
+            background: #ffffff;
         }
 
         .slider-info {
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             margin-top: 8px;
-            color: #cfb27c;
-            padding: 0 10px;
+            color: #8b765a;
+            padding: 0 8px;
         }
 
         /* Кнопка */
         .calc-btn {
-            background: #f3a712;
+            background: #2e7d32;
             border: none;
             width: 100%;
             padding: 16px;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: bold;
             font-family: inherit;
-            color: #2c1a0e;
+            color: white;
             border-radius: 60px;
             margin: 20px 0 20px;
             cursor: pointer;
             transition: 0.1s linear;
-            box-shadow: 0 6px 0 #7a4800;
+            box-shadow: 0 4px 0 #1b5e20;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
         .calc-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #7a4800;
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #1b5e20;
         }
 
-        /* Результаты */
+        /* Результаты — светлая область */
         .results {
-            background: #1f1912cc;
-            border-radius: 36px;
+            background: #faf7f0;
+            border-radius: 28px;
             padding: 20px;
             margin-top: 20px;
-            border-left: 6px solid #f3a712;
+            border-left: 6px solid #2e7d32;
+            box-shadow: inset 0 1px 3px #0001, 0 2px 5px #0001;
         }
 
         .best-card {
-            background: #2a4b2c;
-            padding: 14px 18px;
+            background: #eef5e9;
+            padding: 18px 20px;
             border-radius: 28px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             text-align: center;
-            border: 1px solid #ffd966;
+            border: 1px solid #c8e6b5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .best-price {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #ffd966;
-            font-family: monospace;
-            word-break: break-all;
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #1b5e20;
+            font-family: 'Courier New', monospace;
+            background: #ffffffcc;
+            display: inline-block;
+            padding: 4px 20px;
+            border-radius: 60px;
+            margin: 8px 0;
+            letter-spacing: 1px;
         }
 
         .command {
-            background: #0e0b07;
-            padding: 12px;
-            border-radius: 48px;
-            font-family: monospace;
+            background: #2d2a24;
+            padding: 12px 16px;
+            border-radius: 60px;
+            font-family: 'Courier New', monospace;
             font-size: 1.2rem;
             display: inline-block;
             width: 100%;
             text-align: center;
-            color: #b9f5a0;
+            color: #d4ffb0;
+            font-weight: bold;
             letter-spacing: 1px;
+            border: 1px solid #6f8f5c;
         }
 
         .option-list {
-            max-height: 260px;
+            max-height: 280px;
             overflow-y: auto;
             margin-top: 15px;
             padding-right: 4px;
         }
 
         .option-item {
-            background: #2b241cb3;
+            background: #ffffff;
             margin: 8px 0;
-            padding: 10px 12px;
-            border-radius: 30px;
+            padding: 12px 16px;
+            border-radius: 40px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 0.85rem;
-            font-weight: bold;
+            font-weight: 600;
             flex-wrap: wrap;
-            gap: 6px;
-            border: 1px solid #ab8e54;
+            gap: 8px;
+            border: 1px solid #ded3c0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            color: #3d3529;
         }
 
         .badge {
-            background: #ffd96630;
-            padding: 4px 12px;
+            background: #e7e0d4;
+            padding: 4px 14px;
             border-radius: 60px;
             font-family: monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #3c5e2b;
         }
 
         hr {
-            border-color: #ffd96640;
-            margin: 12px 0;
+            border-color: #dacfa8;
+            margin: 16px 0 8px;
         }
 
         .footer {
             font-size: 0.7rem;
             text-align: center;
-            margin-top: 20px;
-            color: #c0a26b;
-        }
-
-        button {
-            background: none;
-            border: none;
+            margin-top: 22px;
+            color: #8e7a5e;
+            background: #fef7ea;
+            padding: 8px;
+            border-radius: 30px;
         }
 
         ::-webkit-scrollbar {
@@ -222,75 +235,76 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #221d15;
+            background: #e7dfd2;
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #f3a712;
+            background: #8baa6e;
             border-radius: 10px;
+        }
+
+        .perfect-badge {
+            background: #c8e6c9;
+            color: #1f5a23;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ RW MARKET ⚔️</h1>
-    <div class="sub">калькулятор • стаки • безопасная цена</div>
+    <h1>🌾 RW MARKET • КАЛЬКУЛЯТОР</h1>
+    <div class="sub">безопасный перенос валюты через стаки</div>
 
     <div class="input-group">
-        <label>💰 Сумма перевода <i>нужно получить</i></label>
+        <label>💰 Сумма перевода <i>сколько нужно получить</i></label>
         <input type="number" id="targetAmount" value="5000000" step="1" placeholder="например 5000000">
     </div>
 
     <div class="input-group">
-        <label>📦 Лимит цены за 1 предмет <i>макс. значение /market sell</i></label>
+        <label>📦 Лимит цены за 1 предмет <i>макс /market sell</i></label>
         <input type="number" id="maxPrice" value="17000" step="1" placeholder="макс цена за 1 шт">
     </div>
 
     <div class="input-group">
-        <label>🧩 Макс. стаков для поиска <i>рекомендуем 1-25</i></label>
+        <label>🧩 Макс. стаков <i>поиск до этого числа</i></label>
         <input type="number" id="maxStacks" value="20" step="1" min="1" max="50">
         <div class="slider-info">
-            <span>⚡ Меньше стаков = быстрее сделка</span>
+            <span>⚡ Меньше стаков = быстрее</span>
             <span>📦 1 стак = 64 предмета</span>
         </div>
     </div>
 
-    <button class="calc-btn" id="calcBtn">🔨 РАССЧИТАТЬ</button>
+    <button class="calc-btn" id="calcBtn">🧮 РАССЧИТАТЬ</button>
 
     <div class="results" id="resultsArea">
-        <div style="text-align:center; color:#ffe2b5;">⚙️ Введи параметры и нажми "РАССЧИТАТЬ"<br>✅ Подберём цену без потерь!</div>
+        <div style="text-align:center; color:#6f5a3e; padding:10px;">⚙️ Введи данные и нажми «Рассчитать»<br>✅ Подберём лучшую цену без потерь</div>
     </div>
     <div class="footer">
-        🧠 Логика: цена за 1 шт × (стаки×64) ≥ нужная сумма,<br>
-        цена ≤ лимит, округление вверх → целое число.
+        🧠 Логика: цена за 1шт × (стаки×64) ≥ нужная сумма, цена ≤ лимит, округление вверх → целое число.
     </div>
 </div>
 
 <script>
     (function() {
-        // ----- ЛОГИКА расчёта (полностью по ТЗ) -----
-        // 1 стак = 64 предмета
         const STACK_SIZE = 64;
 
         function findOptions(target, maxPricePerItem, maxStacksLimit) {
             const options = [];
 
             for (let stacks = 1; stacks <= maxStacksLimit; stacks++) {
-                const totalItems = stacks * STACK_SIZE;   // всего предметов за все стаки
-                // базовая цена за 1 шт (целочисленное деление)
+                const totalItems = stacks * STACK_SIZE;
                 const basePrice = Math.floor(target / totalItems);
-                
-                // проверяем два варианта: basePrice и basePrice+1 (округление вверх, чтобы не потерять)
                 const candidates = [basePrice, basePrice + 1];
                 
                 for (let price of candidates) {
                     if (price <= 0) continue;
                     if (price > maxPricePerItem) continue;
-                    
                     const totalReceived = price * totalItems;
-                    const difference = totalReceived - target;   // переплата / остаток
-                    // условие: получили НЕ МЕНЬШЕ, чем нужно (нельзя недополучить)
+                    const difference = totalReceived - target;
                     if (difference >= 0) {
                         options.push({
                             stacks: stacks,
@@ -302,7 +316,6 @@
                 }
             }
             
-            // сортировка: 1) меньше стаков, 2) минимальная разница (чем точнее, тем лучше)
             options.sort((a, b) => {
                 if (a.stacks !== b.stacks) return a.stacks - b.stacks;
                 return a.difference - b.difference;
@@ -318,17 +331,16 @@
         function renderResults(target, maxPricePerItem, maxStacksLimit) {
             const resultsDiv = document.getElementById('resultsArea');
             
-            // Валидация
             if (isNaN(target) || target <= 0) {
-                resultsDiv.innerHTML = `<div style="background:#8b3c2c; padding:16px; border-radius:28px;">❌ Ошибка: сумма перевода должна быть положительным числом.</div>`;
+                resultsDiv.innerHTML = `<div style="background:#ffe0b5; color:#a5441a; padding:18px; border-radius:28px; font-weight:bold;">❌ Ошибка: сумма перевода должна быть больше 0.</div>`;
                 return;
             }
             if (isNaN(maxPricePerItem) || maxPricePerItem <= 0) {
-                resultsDiv.innerHTML = `<div style="background:#8b3c2c; padding:16px; border-radius:28px;">❌ Лимит цены должен быть больше 0.</div>`;
+                resultsDiv.innerHTML = `<div style="background:#ffe0b5; color:#a5441a; padding:18px; border-radius:28px;">❌ Лимит цены должен быть положительным числом.</div>`;
                 return;
             }
             if (isNaN(maxStacksLimit) || maxStacksLimit < 1) {
-                resultsDiv.innerHTML = `<div style="background:#8b3c2c; padding:16px; border-radius:28px;">❌ Максимум стаков должен быть хотя бы 1.</div>`;
+                resultsDiv.innerHTML = `<div style="background:#ffe0b5; color:#a5441a; padding:18px; border-radius:28px;">❌ Максимум стаков должен быть хотя бы 1.</div>`;
                 return;
             }
             
@@ -336,94 +348,85 @@
             
             if (options.length === 0) {
                 resultsDiv.innerHTML = `
-                    <div style="text-align:center;">
+                    <div style="text-align:center; padding:10px;">
                         <span style="font-size:2rem;">⚠️</span>
-                        <p style="margin:12px 0 0 0;"><strong>Нет вариантов</strong><br>
-                        Попробуйте увеличить "Макс. стаков для поиска"<br>
-                        или поднять лимит цены за предмет.</p>
-                        <small style="display:block; margin-top:12px;">💡 Совет: 1 стак = 64 шт, чем больше стаков — тем ниже цена за 1 предмет.</small>
+                        <p style="margin:12px 0; font-weight:bold; color:#855e32;">Нет подходящих вариантов</p>
+                        <p>Попробуйте увеличить «Макс. стаков» или поднять лимит цены.</p>
+                        <small>💡 Чем больше стаков — тем ниже цена за 1 предмет.</small>
                     </div>
                 `;
                 return;
             }
             
             const best = options[0];
-            // Генерируем HTML
-            let optionsHtml = `<div style="margin-top:8px; font-weight:bold;">📋 Все подходящие варианты (${options.length}):</div><div class="option-list">`;
+            
+            let optionsHtml = `<div style="margin-top: 16px; font-weight: 700; color:#4a3924;">📋 Все варианты (${options.length}):</div><div class="option-list">`;
             for (let opt of options) {
-                const diffText = opt.difference === 0 ? '🎯 ТОЧНО' : `➕ лишних ${formatNumber(opt.difference)}`;
+                const diffText = opt.difference === 0 ? '🎯 ТОЧНО!' : `➕ лишних ${formatNumber(opt.difference)}`;
                 optionsHtml += `
                     <div class="option-item">
                         <span>📦 ${opt.stacks} стак(ов) / ${opt.stacks * STACK_SIZE} шт</span>
                         <span class="badge">💰 ${formatNumber(opt.pricePerItem)} /шт</span>
                         <span>🧾 итог ${formatNumber(opt.totalReceived)}</span>
-                        <span style="color:#ffbc6e;">${diffText}</span>
+                        <span style="color:#558b2f; font-weight:bold;">${diffText}</span>
                     </div>
                 `;
             }
             optionsHtml += `</div>`;
             
-            const perfectBadge = best.difference === 0 ? "✅ ИДЕАЛЬНО! Без переплаты" : `⚠️ Переплата: ${formatNumber(best.difference)} монет (минимальная возможная)`;
+            const perfectBlock = best.difference === 0 
+                ? '<span class="perfect-badge">✅ ИДЕАЛЬНО! Без переплаты</span>' 
+                : `<span style="background:#ffecb3; padding:4px 12px; border-radius:50px;">⚠️ Переплата: ${formatNumber(best.difference)} монет (минимум)</span>`;
             
             const fullHtml = `
                 <div class="best-card">
-                    <div style="font-size:0.85rem; letter-spacing:1px;">🏆 РЕКОМЕНДУЕМЫЙ СПОСОБ</div>
-                    <div style="font-size:1rem; margin: 5px 0;">⚡ ${best.stacks} стак(ов) ⚡</div>
+                    <div style="font-size:0.75rem; letter-spacing:1px; color:#6b4c2c;">🏆 ЛУЧШИЙ ВАРИАНТ</div>
+                    <div style="font-size:1.2rem; margin: 4px 0 2px; font-weight:700;">⚡ ${best.stacks} стак(ов) (${best.stacks * STACK_SIZE} предметов)</div>
                     <div class="best-price">${formatNumber(best.pricePerItem)} монет / 1 предмет</div>
-                    <div class="command" style="margin-top: 12px;">/market sell ${best.pricePerItem}</div>
-                    <div style="margin-top: 12px; background:#16100a; border-radius:40px; padding:6px;">
-                        🧾 Итого получите: <strong>${formatNumber(best.totalReceived)}</strong> из ${formatNumber(target)} нужных<br>
-                        ${perfectBadge}
+                    <div class="command" style="margin-top: 14px;">/market sell ${best.pricePerItem}</div>
+                    <div style="margin: 14px 0 0; background:#fff1df; border-radius: 40px; padding: 10px; font-weight:500;">
+                        🧾 Итого получите: <strong>${formatNumber(best.totalReceived)}</strong> (нужно было ${formatNumber(target)})<br>
+                        ${perfectBlock}
                     </div>
-                    <div style="margin-top: 12px; font-size:0.75rem;">🔄 Выставить ${best.stacks} раз(а) с полным стаком (64 предмета) в руке</div>
+                    <div style="margin-top: 14px; font-size:0.8rem; color:#5c503f;">🔄 Выставить ${best.stacks} раз(а) с полным стаком (64 шт) в руке</div>
                 </div>
                 ${optionsHtml}
                 <hr>
-                <div style="font-size:0.75rem; margin-top: 6px;">
-                📐 Формула: цена за 1шт × (стаки × 64) = результат ≥ нужная сумма<br>
-                🧮 Округление всегда вверх, чтобы сервер не списал меньше.
+                <div style="font-size:0.7rem; margin-top: 8px; color:#776b58;">
+                📐 Формула: цена за 1шт × (стаки × 64) = сумма на руки ≥ нужной суммы.<br>
+                🧮 Округление вверх — чтобы сервер не снял меньше.
                 </div>
             `;
             
             resultsDiv.innerHTML = fullHtml;
         }
         
-        // Обработчики
-        const calcButton = document.getElementById('calcBtn');
+        const calcBtn = document.getElementById('calcBtn');
         const targetInput = document.getElementById('targetAmount');
         const maxPriceInput = document.getElementById('maxPrice');
         const maxStacksInput = document.getElementById('maxStacks');
         
         function performCalculation() {
-            const target = parseFloat(targetInput.value);
-            const maxPrice = parseFloat(maxPriceInput.value);
-            const maxStacks = parseInt(maxStacksInput.value, 10);
+            let target = parseInt(targetInput.value, 10);
+            let maxPrice = parseInt(maxPriceInput.value, 10);
+            let maxStacks = parseInt(maxStacksInput.value, 10);
             
-            // Для целых денег (валюты) – используем целые числа
-            if (!Number.isInteger(target) || !Number.isInteger(maxPrice)) {
-                // но можно и с плавающей, но в майнкрафте обычно целые
-                if (!Number.isFinite(target) || !Number.isFinite(maxPrice)) {
-                    alert('Пожалуйста, введите целые числа (монеты)');
-                    return;
-                }
-            }
-            renderResults(Math.floor(target), Math.floor(maxPrice), Math.floor(maxStacks));
+            if (isNaN(target)) target = 0;
+            if (isNaN(maxPrice)) maxPrice = 0;
+            if (isNaN(maxStacks)) maxStacks = 5;
+            
+            renderResults(target, maxPrice, maxStacks);
         }
         
-        calcButton.addEventListener('click', performCalculation);
-        
-        // При нажатии Enter тоже считаем
-        const inputs = [targetInput, maxPriceInput, maxStacksInput];
-        inputs.forEach(inp => {
+        calcBtn.addEventListener('click', performCalculation);
+        [targetInput, maxPriceInput, maxStacksInput].forEach(inp => {
             inp.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') performCalculation();
             });
         });
         
-        // Первый авто-расчёт при загрузке страницы (чтобы сразу увидеть 5.000.000 пример)
-        setTimeout(() => {
-            performCalculation();
-        }, 50);
+        // Автозапуск
+        performCalculation();
     })();
 </script>
 </body>
